@@ -17,6 +17,11 @@ import matplotlib.pyplot as plt
 import warnings
 import sys
 
+try:
+    from IPython.display import HTML
+except ImportError:
+    HTML = None
+
 
 class AntColonySimulation:
     """
@@ -568,27 +573,91 @@ class AntColonySimulation:
         
         Returns:
         --------
-        str
-            Formatted table of food sources
+        IPython.display.HTML or str
+            Formatted HTML table of food sources when IPython is available,
+            otherwise a plain-text summary.
         """
         if not self.environment_initialized:
             return "Environment not initialized."
-        
-        lines = ["🐜 FOOD SOURCES INITIALIZED:\n"]
-        lines.append(f"{'ID':<4} {'Location':<15} {'Dist':<7} {'Angle':<7} {'Quality':<9} "
-                    f"{'Quantity':<10} {'Ease':<6} {'Patch-Size':<10} {'Score':<6}")
-        lines.append("=" * 85)
-        
+
+        rows = []
         for i in range(len(self.food_locations)):
-            lines.append(
-                f"F{i+1:<3} {str(self.food_locations[i]):<15} {self.food_distances[i]:<7.2f} "
-                f"{self.food_locations_angles[i]:<7.2f} {self.food_quality[i]:<9.0f} "
-                f"{self.original_food_quantity[i]:<10} {self.food_ease_of_access[i]:<6.0f} "
-                f"{self.food_patch_size[i]:<10.1f} {self.food_scores[i]:<6.2f}"
+            rows.append(
+                {
+                    "ID": f"F{i + 1}",
+                    "Location": str(self.food_locations[i]),
+                    "Dist": f"{self.food_distances[i]:.2f}",
+                    "Angle": f"{self.food_locations_angles[i]:.2f}",
+                    "Quality": f"{self.food_quality[i]:.0f}",
+                    "Quantity": f"{self.original_food_quantity[i]}",
+                    "Ease": f"{self.food_ease_of_access[i]:.0f}",
+                    "Patch Size": f"{self.food_patch_size[i]:.1f}°",
+                    "Score": f"{self.food_scores[i]:.2f}",
+                }
             )
-        
-        lines.append("\n✅ Environment ready for simulation!")
-        return "\n".join(lines)
+
+        if HTML is None:
+            lines = ["🐜 FOOD SOURCES INITIALIZED:\n"]
+            lines.append(
+                f"{'ID':<4} {'Location':<15} {'Dist':<7} {'Angle':<7} {'Quality':<9} "
+                f"{'Quantity':<10} {'Ease':<6} {'Patch-Size':<10} {'Score':<6}"
+            )
+            lines.append("=" * 85)
+
+            for row in rows:
+                lines.append(
+                    f"{row['ID']:<4} {row['Location']:<15} {row['Dist']:<7} {row['Angle']:<7} "
+                    f"{row['Quality']:<9} {row['Quantity']:<10} {row['Ease']:<6} "
+                    f"{row['Patch Size']:<10} {row['Score']:<6}"
+                )
+
+            lines.append("\n✅ Environment ready for ant colony simulation!")
+            return "\n".join(lines)
+
+        header_html = """
+<div style='margin-bottom: 10px;'>
+  <h3 style='margin: 0 0 8px 0;'>🐜 Food Sources Initialized</h3>
+  <p style='margin: 0; color: #444;'>
+    This table summarizes the randomly generated environment before the simulation starts.
+  </p>
+</div>
+"""
+
+        column_order = ["ID", "Location", "Dist", "Angle", "Quality", "Quantity", "Ease", "Patch Size", "Score"]
+        header_row = "".join(
+            f"<th style='padding: 8px 10px; border-bottom: 2px solid #444; background: rgb(40, 140, 230); color:black; text-align: center;'>{col}</th>"
+            for col in column_order
+        )
+
+        data_rows = []
+        for row in rows:
+            cells = []
+            for col in column_order:
+                extra_style = "font-weight: 700;" if col in {"ID", "Score"} else ""
+                cells.append(
+                    f"<td style='padding: 8px 10px; border-bottom: 1px solid #ddd; text-align: center; {extra_style}'>{row[col]}</td>"
+                )
+            data_rows.append("<tr>" + "".join(cells) + "</tr>")
+
+        table_html = f"""
+<table style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 14px;'>
+  <thead>
+    <tr>{header_row}</tr>
+  </thead>
+  <tbody>
+    {''.join(data_rows)}
+  </tbody>
+</table>
+"""
+
+        footer_html = """
+<br>
+<div style='margin-top: 10px; padding: 8px 10px; background: rgb(40, 140, 230); color:black; border-left: 4px solid #2e7d32;'><b>
+  ✅ Environment ready for ant colony simulation!</b>
+</div>
+"""
+
+        return HTML(header_html + table_html + footer_html)
     
     def visualize_environment(self, figsize=(12, 10)):
         """
