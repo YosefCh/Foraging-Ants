@@ -10,22 +10,22 @@ This project compares three strategies for collecting food from multiple sources
 
 The repository includes both:
 
-- a reusable Python class in [ant_colony_simulation.py](ant_colony_simulation.py)
+- a reusable Python class
 - two Jupyter notebooks for guided exploration and visualization
 
 ## What the simulation demonstrates
 
-The model creates a nest at `(0, 0)` and randomly places food source centers inside a square search area. Each food source has the following attributes:
+The model creates a nest at `(0, 0)` and randomly places food sources inside a square search area. Each food source has the following attributes:
 
 - distance from the nest
-- quality
+- quality (nutritional value)
 - quantity
 - ease of access
 
 Food patches are then treated as circular patches for detection and visualization. These attributes are normalized and combined into a weighted score. During the ant colony run:
 
 - scout ants periodically explore at random
-- successful ants deposit pheromones based on food value
+- successful ants deposit pheromones on food trails based on food value
 - follower ants bias toward the strongest pheromone trails
 - pheromones evaporate over time so the colony can adapt when food sources are depleted
 
