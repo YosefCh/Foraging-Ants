@@ -164,16 +164,11 @@ The ant colony run also stores a list of recorded ant decisions as:
 
 where `role` is either `"scout"` or `"follower"`.
 
-## Interpretation
+## Visuals
 
-This simulation is useful for studying how simple local rules can produce strong global optimization behavior.
+![alt text](Visuals-1.png)
 
-It is especially good for exploring:
-
-- exploration vs exploitation
-- environmental memory via pheromones
-- adaptive redistribution after resource depletion
-- differences between coordinated and uncoordinated search
+![alt text](Visuals-2.png)
 
 
 ## License
